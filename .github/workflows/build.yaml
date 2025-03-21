@@ -1,0 +1,36 @@
+name: Build Windows Application
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go 1.20
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.20'
+
+    - name: Initialize Go module
+      run: go mod init github.com/dduutt/sumlize
+
+    - name: Install dependencies
+      run: go get github.com/xuri/excelize/v2
+
+    - name: Build Windows executable
+      run: |
+        go build -o sumlize.exe main.go
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: sumlize.exe
