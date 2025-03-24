@@ -15,7 +15,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func GetLastNumbericCellValueByGetRows(f *excelize.File, sheetName string) (value float64, err error) {
+func GetLastNumbericCellValueByGetRows(f *excelize.File, sheetName string) (float64, error) {
 	rows, err := f.GetRows(sheetName, excelize.Options{RawCellValue: true})
 	if err != nil {
 		return 0, errors.Join(err, fmt.Errorf("%s %s获取行数据失败", f.Path, sheetName))
@@ -23,11 +23,12 @@ func GetLastNumbericCellValueByGetRows(f *excelize.File, sheetName string) (valu
 	l := len(rows)
 
 	for i := l - 1; i >= 0; i-- {
-		for _, v := range rows[i] {
-			f, err := strconv.ParseFloat(strings.TrimSpace(v), 64)
+		for j := len(rows[i]) - 1; j >= 0; j-- {
+			v, err := strconv.ParseFloat(strings.TrimSpace(rows[i][j]), 64)
 			if err == nil {
-				return f, nil
+				return v, nil
 			}
+
 		}
 	}
 	return 0, fmt.Errorf("%s %s没有找到数字值", f.Path, sheetName)
@@ -94,7 +95,7 @@ func GetPersonPerformance(fileName string) (result map[string]float64, err error
 	}
 	defer f.Close()
 
-	result = make(map[string]float64, 0)
+	result = make(map[string]float64)
 
 	for _, sheetName := range f.GetSheetList() {
 		if !IsStringLengthBetween2And4ChineseChars(sheetName) {
